@@ -75,27 +75,31 @@ Cubes::Cubes(Shader lightingShader, Shader lightCubeShader) : lightingShader(lig
 
 }
 
-void Cubes::draw(glm::mat4 projection, glm::mat4 view, glm::vec3 cameraPos) {
+void Cubes::draw(glm::mat4 projection, glm::mat4 view, glm::vec3 cameraPos, double time) {
     lightingShader.use();
     lightingShader.setVec3("objectColor", 1.f, 0.5f, 0.31f);
     lightingShader.setVec3("lightColor", 1.f, 1.f, 1.f);
     lightingShader.setVec3("lightPos", lightPos);
-    lightingShader.setVec3("viewPos", cameraPos);
 
     lightingShader.setMat4("projection", projection);
     lightingShader.setMat4("view", view);
 
-    // world transformation
     glm::mat4 transform = glm::mat4(1.0f);
-    lightingShader.setMat3("matrixNormals", glm::transpose(glm::inverse(transform)));
+    transform = glm::rotate(transform, static_cast<float>(time), glm::vec3(0.5f, 0.f, 0.5f));
+    lightingShader.setMat3("matrixNormals", glm::mat3(glm::transpose(glm::inverse(view * transform))));
     lightingShader.setMat4("transform", transform);
 
     glBindVertexArray(VAO_cube);
     glDrawArrays(GL_TRIANGLES, 0, vertices.size() * sizeof(float));
 
+
     lightCubeShader.use();
     lightCubeShader.setMat4("projection", projection);
     lightCubeShader.setMat4("view", view);
+
+    lightPos.x = static_cast<float>(sin(time) * 2);
+    lightPos.y = static_cast<float>(sin(time) * cos(time) * 2);
+    lightPos.z = static_cast<float>(cos(time) * 2);
 
     transform = glm::mat4(1.0f);
     transform = glm::translate(transform, lightPos);

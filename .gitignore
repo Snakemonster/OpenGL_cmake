@@ -77,6 +77,4 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 #Compiled app. On different os different app
-build/OpenGL_cmake.exe
-build/OpenGL_cmake.ilk
-build/OpenGL_cmake.pdb
+build/

@@ -70,7 +70,7 @@ void EngineOGL::mainLoop() {
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SRC_WIDTH / (float)SRC_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
 
-        cubes.draw(projection, view, camera.Position);
+        cubes.draw(projection, view, camera.Position, glfwGetTime());
 //end of main loop code
 
         showFPS(window);
