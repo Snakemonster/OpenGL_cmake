@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include "shader_handler.h"
 #include "camera.h"
-#include "Cubes.h"
+#include "Spheres.h"
 
 #include <iostream>
 #include "EngineOGL.h"
@@ -54,7 +54,7 @@ int EngineOGL::start() {
 }
 
 void EngineOGL::mainLoop() {
-    Cubes cubes(Shader("shaders/vertex.glsl", "shaders/fragment.glsl"), Shader("shaders/light_cube_vertex.glsl", "shaders/light_cube_fragment.glsl"));
+    Spheres sphere(1.f, 144, 72);
     while (!glfwWindowShouldClose(window)) {
 
         double currentTime = glfwGetTime();
@@ -70,7 +70,7 @@ void EngineOGL::mainLoop() {
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SRC_WIDTH / (float)SRC_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = camera.GetViewMatrix();
 
-        cubes.draw(projection, view, camera.Position, glfwGetTime());
+        sphere.draw(projection, view, glfwGetTime());
 //end of main loop code
 
         showFPS(window);
