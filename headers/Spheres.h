@@ -1,11 +1,18 @@
 #ifndef OPENGL_CMAKE_SPHERES_H
 #define OPENGL_CMAKE_SPHERES_H
 #include <vector>
+#include "Light.h"
 
 class Spheres {
 public:
-    Spheres(float radius=1.0f, int sectorCount=36, int stackCount=18, bool smooth=true);
-    void draw(glm::mat4 projection, glm::mat4 view, double time);
+    Spheres(glm::vec3 position, float radius=1.0f, int sectorCount=36, int stackCount=18, bool smooth=true);
+    void draw(glm::mat4 projection, glm::mat4 view, Light lightCube);
+
+    void setShininess(float shininess);
+    void setAmbient(const glm::vec3 &ambient);
+    void setDiffuse(const glm::vec3 &diffuse);
+    void setSpecular(const glm::vec3 &specular);
+    void setAllPhongLight(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess);
 
 private:
     void buildVerticesSmooth();
@@ -20,12 +27,13 @@ private:
                                          float x2, float y2, float z2,
                                          float x3, float y3, float z3);
 
-    float radius;
+    float radius, shininess;
     int sectorCount;
     int stackCount;
-    Shader lightingShader, lightCubeShader;
-    unsigned int VAO_sphere, VAO_cubelight, VBO_sphere, VBO_cubelight, EBO;
-    std::vector <float> vertices, normals, verticesLight;
+    unsigned int VAO, VBO, EBO;
+    Shader lightingShader;
+    glm::vec3 position, ambient, diffuse, specular;
+    std::vector <float> vertices, normals;
     std::vector <unsigned int> indices, lineIndices;
 
 

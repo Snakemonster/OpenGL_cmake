@@ -12,7 +12,7 @@ private:
     void mainLoop();
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     static void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
-    static void scroll_callback(GLFWwindow* window, double yoffset);
+    static void scroll_callback(GLFWwindow* window, double xoffset ,double yoffset);
     void processInput(GLFWwindow* window) const;
     void showFPS(GLFWwindow* window);
 

@@ -3,16 +3,16 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "shader_handler.h"
+#include "Light.h"
 #include "Spheres.h"
 
 const int MIN_SECTOR_COUNT = 3;
 const int MIN_STACK_COUNT = 2;
-glm::vec3 lightPosSphere(1.2f, 1.0f, 2.0f);
 
-Spheres::Spheres(float radius, int sectorCount, int stackCount, bool smooth) :
+Spheres::Spheres(glm::vec3 position, float radius, int sectorCount, int stackCount, bool smooth) :
         lightingShader(Shader("shaders/vertex.glsl", "shaders/fragment.glsl")),
-        lightCubeShader(Shader("shaders/light_cube_vertex.glsl","shaders/light_cube_fragment.glsl")),
         interleavedStride(6 * sizeof(float)) {
+    this->position = position;
     this->radius = radius;
     this->sectorCount = sectorCount;
     if (sectorCount < MIN_SECTOR_COUNT) this->sectorCount = MIN_SECTOR_COUNT;
@@ -22,11 +22,11 @@ Spheres::Spheres(float radius, int sectorCount, int stackCount, bool smooth) :
     if(smooth) buildVerticesSmooth();
     else buildVerticesFlat();
 
-    glGenVertexArrays(1, &VAO_sphere);
-    glBindVertexArray(VAO_sphere);
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
 
-    glGenBuffers(1, &VBO_sphere);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_sphere);
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, interleavedVertices.size() * sizeof(float), interleavedVertices.data(), GL_STATIC_DRAW);
 
     glGenBuffers(1, &EBO);
@@ -38,105 +38,33 @@ Spheres::Spheres(float radius, int sectorCount, int stackCount, bool smooth) :
 
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, interleavedStride, (void *) (3 * sizeof(float)));
-
-
-//    light cube
-    verticesLight = {
-            -0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,
-            0.5f, 0.5f, -0.5f,
-            0.5f, 0.5f, -0.5f,
-            -0.5f, 0.5f, -0.5f,
-            -0.5f, -0.5f, -0.5f,
-
-            -0.5f, -0.5f, 0.5f,
-            0.5f, -0.5f, 0.5f,
-            0.5f, 0.5f, 0.5f,
-            0.5f, 0.5f, 0.5f,
-            -0.5f, 0.5f, 0.5f,
-            -0.5f, -0.5f, 0.5f,
-
-            -0.5f, 0.5f, 0.5f,
-            -0.5f, 0.5f, -0.5f,
-            -0.5f, -0.5f, -0.5f,
-            -0.5f, -0.5f, -0.5f,
-            -0.5f, -0.5f, 0.5f,
-            -0.5f, 0.5f, 0.5f,
-
-            0.5f, 0.5f, 0.5f,
-            0.5f, 0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, 0.5f,
-            0.5f, 0.5f, 0.5f,
-
-            -0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, -0.5f,
-            0.5f, -0.5f, 0.5f,
-            0.5f, -0.5f, 0.5f,
-            -0.5f, -0.5f, 0.5f,
-            -0.5f, -0.5f, -0.5f,
-
-            -0.5f, 0.5f, -0.5f,
-            0.5f, 0.5f, -0.5f,
-            0.5f, 0.5f, 0.5f,
-            0.5f, 0.5f, 0.5f,
-            -0.5f, 0.5f, 0.5f,
-            -0.5f, 0.5f, -0.5f,
-    };
-    glGenVertexArrays(1, &VAO_cubelight);
-    glBindVertexArray(VAO_cubelight);
-
-    glGenBuffers(1, &VBO_cubelight);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO_cubelight);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * verticesLight.size(), verticesLight.data(), GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *) 0);
 }
 
 
-void Spheres::draw(glm::mat4 projection, glm::mat4 view, double time) {
+void Spheres::draw(glm::mat4 projection, glm::mat4 view, Light lightCube) {
 
-    //start of sphere
     lightingShader.use();
-    lightingShader.setVec3("material.ambient",  1.0f, 0.5f, 0.31f);
-    lightingShader.setVec3("material.diffuse",  1.0f, 0.5f, 0.31f);
-    lightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
-    lightingShader.setFloat("material.shininess", 32.0f);
+    lightingShader.setVec3("material.ambient",  ambient);
+    lightingShader.setVec3("material.diffuse",  diffuse);
+    lightingShader.setVec3("material.specular", specular);
+    lightingShader.setFloat("material.shininess", shininess);
 
 
-    lightingShader.setVec3("light.ambient",  0.2f, 0.2f, 0.2f);
-    lightingShader.setVec3("light.diffuse",  0.5f, 0.5f, 0.5f);
-    lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-    lightingShader.setVec3("lightPos", lightPosSphere);
+    lightingShader.setVec3("light.ambient",  lightCube.getAmbient());
+    lightingShader.setVec3("light.diffuse",  lightCube.getDiffuse());
+    lightingShader.setVec3("light.specular", lightCube.getSpecular());
+    lightingShader.setVec3("lightPos", lightCube.position);
 
     lightingShader.setMat4("projection", projection);
     lightingShader.setMat4("view", view);
 
     glm::mat4 transform = glm::mat4(1.0f);
+    transform = glm::translate(transform, position);
     lightingShader.setMat3("matrixNormals", glm::mat3(glm::transpose(glm::inverse(view * transform))));
     lightingShader.setMat4("transform", transform);
 
-    glBindVertexArray(VAO_sphere);
+    glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size() * sizeof(unsigned int), GL_UNSIGNED_INT, (void *) 0);
-    //end of sphere
-
-    lightCubeShader.use();
-    lightCubeShader.setMat4("projection", projection);
-    lightCubeShader.setMat4("view", view);
-
-    lightPosSphere.x = static_cast<float>(sin(tan(time * 18)) * 2);
-    lightPosSphere.y = static_cast<float>(sin(tan(time * 4.455345)) * cos(tan(time)) * 2);
-    lightPosSphere.z = static_cast<float>(-cos(tan(time * 8))* 2);
-
-    transform = glm::mat4(1.0f);
-    transform = glm::translate(transform, lightPosSphere);
-    transform = glm::scale(transform, glm::vec3(0.2f)); // a smaller cube
-    lightCubeShader.setMat4("transform", transform);
-
-    glBindVertexArray(VAO_cubelight);
-    glDrawArrays(GL_TRIANGLES, 0, verticesLight.size() * sizeof(float));
 }
 
 void Spheres::buildVerticesSmooth() {
@@ -418,4 +346,27 @@ Spheres::computeFaceNormal(float x1, float y1, float z1, float x2, float y2, flo
     }
 
     return normal;
+}
+
+void Spheres::setShininess(float shininess) {
+    Spheres::shininess = shininess;
+}
+
+void Spheres::setAmbient(const glm::vec3 &ambient) {
+    Spheres::ambient = ambient;
+}
+
+void Spheres::setDiffuse(const glm::vec3 &diffuse) {
+    Spheres::diffuse = diffuse;
+}
+
+void Spheres::setSpecular(const glm::vec3 &specular) {
+    Spheres::specular = specular;
+}
+
+void Spheres::setAllPhongLight(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess) {
+    this->ambient = ambient;
+    this->diffuse = diffuse;
+    this->specular = specular;
+    this->shininess = shininess;
 }

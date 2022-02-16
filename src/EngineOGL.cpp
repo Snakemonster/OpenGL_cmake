@@ -1,11 +1,12 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "stb_image.h"
-
 #include <glm/glm.hpp>
+
+#include "stb_image.h"
 #include "shader_handler.h"
 #include "camera.h"
 #include "Spheres.h"
+#include "Light.h"
 
 #include <iostream>
 #include "EngineOGL.h"
@@ -38,11 +39,11 @@ int EngineOGL::start() {
     glfwSwapInterval(0);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
-//    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
@@ -54,7 +55,25 @@ int EngineOGL::start() {
 }
 
 void EngineOGL::mainLoop() {
-    Spheres sphere(1.f, 144, 72);
+
+    Spheres sphere(glm::vec3(-1.f, 0.f, 0.f), 1.f, 144, 72);
+    sphere.setAllPhongLight(glm::vec3(1.0f, 1.0f, 1.0f),
+                            glm::vec3(1.0f, 1.0f, 1.0f),
+                            glm::vec3(1.0f, 1.0f, 1.0f),
+                            16.f);
+
+    Spheres sphere2(glm::vec3(1.f, 0.f, 0.f), 0.5f, 144, 72);
+    sphere2.setAllPhongLight(glm::vec3(0.4f, 0.0f, 0.0f),
+                            glm::vec3(0.4f, 0.0f, 0.0f),
+                            glm::vec3(0.4f, 0.2f, 0.9f),
+                            128.f);
+
+
+    Light light(glm::vec3(1.2f, 1.0f, 2.0f),
+                glm::vec3(0.2f, 0.f, 0.f),
+                glm::vec3(0.5f, 0.5f, 0.5f),
+                glm::vec3(1.0f, 1.0f, 1.0f));
+
     while (!glfwWindowShouldClose(window)) {
 
         double currentTime = glfwGetTime();
@@ -67,10 +86,13 @@ void EngineOGL::mainLoop() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 //main loop code
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SRC_WIDTH / (float)SRC_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float) SRC_WIDTH / (float) SRC_HEIGHT, 0.1f,
+                                                100.0f);
         glm::mat4 view = camera.GetViewMatrix();
 
-        sphere.draw(projection, view, glfwGetTime());
+        light.draw(projection, view, glfwGetTime());
+        sphere2.draw(projection, view, light);
+        sphere.draw(projection, view, light);
 //end of main loop code
 
         showFPS(window);
@@ -93,7 +115,7 @@ void EngineOGL::mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
     auto xpos = static_cast<float>(xposIn);
     auto ypos = static_cast<float>(yposIn);
 
-    if(firstMouse) {
+    if (firstMouse) {
         lastX = xpos;
         lastY = ypos;
         firstMouse = false;
@@ -108,7 +130,7 @@ void EngineOGL::mouse_callback(GLFWwindow *window, double xposIn, double yposIn)
     camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
-void EngineOGL::scroll_callback(GLFWwindow *window, double yoffset) {
+void EngineOGL::scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 //end of callbacks
@@ -127,7 +149,7 @@ void EngineOGL::showFPS(GLFWwindow *window) {
     double currentTimeFPS = glfwGetTime();
     deltaTimeFPS = currentTimeFPS - lastTimeFPS;
     nFrames++;
-    if(deltaTimeFPS >= 1) {
+    if (deltaTimeFPS >= 1) {
         double fps = double(nFrames) / deltaTimeFPS;
         std::stringstream ss;
         ss << "OpenGL FPS is: " << fps << " fps";
