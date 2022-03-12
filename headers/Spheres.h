@@ -14,6 +14,10 @@ public:
     void setSpecular(const glm::vec3 &specular);
     void setAllPhongLight(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess);
 
+    void setConstant(float constant);
+    void setLinear(float linear);
+    void setQuadratic(float quadratic);
+
 private:
     void buildVerticesSmooth();
     void buildVerticesFlat();
@@ -28,6 +32,9 @@ private:
                                          float x3, float y3, float z3);
 
     float radius, shininess;
+    float constant, linear, quadratic;
+
+private:
     int sectorCount;
     int stackCount;
     unsigned int VAO, VBO, EBO;

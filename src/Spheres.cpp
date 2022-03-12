@@ -49,11 +49,14 @@ void Spheres::draw(glm::mat4 projection, glm::mat4 view, Light lightCube) {
     lightingShader.setVec3("material.specular", specular);
     lightingShader.setFloat("material.shininess", shininess);
 
+    lightingShader.setFloat("light.constant",1.0f);
+    lightingShader.setFloat("light.linear",0.09f);
+    lightingShader.setFloat("light.quadratic",0.032f);
 
     lightingShader.setVec3("light.ambient",  lightCube.getAmbient());
     lightingShader.setVec3("light.diffuse",  lightCube.getDiffuse());
     lightingShader.setVec3("light.specular", lightCube.getSpecular());
-    lightingShader.setVec3("lightPos", lightCube.position);
+    lightingShader.setVec3("light.position", lightCube.position);
 
     lightingShader.setMat4("projection", projection);
     lightingShader.setMat4("view", view);
@@ -369,4 +372,16 @@ void Spheres::setAllPhongLight(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 s
     this->diffuse = diffuse;
     this->specular = specular;
     this->shininess = shininess;
+}
+
+void Spheres::setConstant(float constant) {
+    Spheres::constant = constant;
+}
+
+void Spheres::setLinear(float linear) {
+    Spheres::linear = linear;
+}
+
+void Spheres::setQuadratic(float quadratic) {
+    Spheres::quadratic = quadratic;
 }

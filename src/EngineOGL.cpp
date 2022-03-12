@@ -62,11 +62,11 @@ void EngineOGL::mainLoop() {
                             glm::vec3(1.0f, 1.0f, 1.0f),
                             16.f);
 
-    Spheres sphere2(glm::vec3(1.f, 0.f, 0.f), 0.5f, 144, 72);
-    sphere2.setAllPhongLight(glm::vec3(0.4f, 0.0f, 0.0f),
-                            glm::vec3(0.4f, 0.0f, 0.0f),
-                            glm::vec3(0.4f, 0.2f, 0.9f),
-                            128.f);
+    Spheres sphere2(glm::vec3(5.f, 0.f, 0.f), 1.f, 144, 72);
+    sphere2.setAllPhongLight(glm::vec3(1.0f, 1.0f, 1.0f),
+                             glm::vec3(1.0f, 1.0f, 1.0f),
+                             glm::vec3(1.0f, 1.0f, 1.0f),
+                             16.f);
 
 
     Light light(glm::vec3(1.2f, 1.0f, 2.0f),
