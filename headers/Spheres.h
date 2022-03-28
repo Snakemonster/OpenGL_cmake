@@ -6,7 +6,7 @@
 class Spheres {
 public:
     Spheres(glm::vec3 position, float radius=1.0f, int sectorCount=36, int stackCount=18, bool smooth=true);
-    void draw(glm::mat4 projection, glm::mat4 view, Light lightCube);
+    void draw(glm::mat4 projection, glm::mat4 view, Light lightCube, Light lightCube2);
 
     void setShininess(float shininess);
     void setAmbient(const glm::vec3 &ambient);
@@ -34,7 +34,6 @@ private:
     float radius, shininess;
     float constant, linear, quadratic;
 
-private:
     int sectorCount;
     int stackCount;
     unsigned int VAO, VBO, EBO;

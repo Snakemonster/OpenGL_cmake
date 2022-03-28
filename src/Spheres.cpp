@@ -41,7 +41,7 @@ Spheres::Spheres(glm::vec3 position, float radius, int sectorCount, int stackCou
 }
 
 
-void Spheres::draw(glm::mat4 projection, glm::mat4 view, Light lightCube) {
+void Spheres::draw(glm::mat4 projection, glm::mat4 view, Light lightCube, Light lightCube2) {
 
     lightingShader.use();
     lightingShader.setVec3("material.ambient",  ambient);
@@ -49,14 +49,19 @@ void Spheres::draw(glm::mat4 projection, glm::mat4 view, Light lightCube) {
     lightingShader.setVec3("material.specular", specular);
     lightingShader.setFloat("material.shininess", shininess);
 
-    lightingShader.setFloat("light.constant",1.0f);
-    lightingShader.setFloat("light.linear",0.09f);
-    lightingShader.setFloat("light.quadratic",0.032f);
+    lightingShader.setVec3("dirLight.ambient",  lightCube2.getAmbient());
+    lightingShader.setVec3("dirLight.diffuse",  lightCube2.getDiffuse());
+    lightingShader.setVec3("dirLight.specular", lightCube2.getSpecular());
+    lightingShader.setVec3("dirLight.position", lightCube2.position);
 
-    lightingShader.setVec3("light.ambient",  lightCube.getAmbient());
-    lightingShader.setVec3("light.diffuse",  lightCube.getDiffuse());
-    lightingShader.setVec3("light.specular", lightCube.getSpecular());
-    lightingShader.setVec3("light.position", lightCube.position);
+    lightingShader.setFloat("pointLight.constant",1.0f);
+    lightingShader.setFloat("pointLight.linear",0.09f);
+    lightingShader.setFloat("pointLight.quadratic",0.032f);
+
+    lightingShader.setVec3("pointLight.ambient",  lightCube.getAmbient());
+    lightingShader.setVec3("pointLight.diffuse",  lightCube.getDiffuse());
+    lightingShader.setVec3("pointLight.specular", lightCube.getSpecular());
+    lightingShader.setVec3("pointLight.position", lightCube.position);
 
     lightingShader.setMat4("projection", projection);
     lightingShader.setMat4("view", view);

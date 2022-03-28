@@ -71,8 +71,8 @@ void Light::draw(glm::mat4 projection, glm::mat4 view, double time) {
     shader.setMat4("projection", projection);
     shader.setMat4("view", view);
 
-    position.x = static_cast<float>(sin(time) * 2);
-    position.y = static_cast<float>(sin(time) * cos(time) * 2);
+    position.x = static_cast<float>(sin(time)  * 8);
+//    position.y += static_cast<float>(sin(time) * cos(time) * 2);
     position.z = static_cast<float>(-cos(time) * 2);
 
     glm::mat4 transform = glm::mat4(1.f);

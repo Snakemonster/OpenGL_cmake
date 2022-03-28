@@ -38,7 +38,7 @@ int EngineOGL::start() {
     glfwMakeContextCurrent(window);
     glfwSwapInterval(0);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
+//    glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -69,7 +69,12 @@ void EngineOGL::mainLoop() {
                              16.f);
 
 
-    Light light(glm::vec3(1.2f, 1.0f, 2.0f),
+    Light light(glm::vec3(2.f, 2.0f, 0.0f),
+                glm::vec3(0.2f, 0.f, 0.f),
+                glm::vec3(0.5f, 0.5f, 0.5f),
+                glm::vec3(1.0f, 1.0f, 1.0f));
+
+    Light light2(glm::vec3(2.f, -5.0f, 0.0f),
                 glm::vec3(0.2f, 0.f, 0.f),
                 glm::vec3(0.5f, 0.5f, 0.5f),
                 glm::vec3(1.0f, 1.0f, 1.0f));
@@ -91,8 +96,9 @@ void EngineOGL::mainLoop() {
         glm::mat4 view = camera.GetViewMatrix();
 
         light.draw(projection, view, glfwGetTime());
-        sphere2.draw(projection, view, light);
-        sphere.draw(projection, view, light);
+        light2.draw(projection, view, glfwGetTime());
+        sphere2.draw(projection, view, light, light2);
+        sphere.draw(projection, view, light, light2);
 //end of main loop code
 
         showFPS(window);
